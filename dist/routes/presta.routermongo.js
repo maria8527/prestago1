@@ -14,16 +14,65 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.prestaRouter = void 0;
 const express_1 = __importDefault(require("express"));
+const mongodb_1 = require("mongodb");
 const database_service_1 = require("../services/database.service");
 exports.prestaRouter = express_1.default.Router();
 exports.prestaRouter.use(express_1.default.json());
-exports.prestaRouter.get("/mongo", (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.prestaRouter.get("/mongo", decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user_no_register = yield database_service_1.collections.user_no_register.find({}).toArray();
         res.status(200).send(user_no_register);
     }
     catch (error) {
         res.status(500).send(error.message);
+    }
+}));
+exports.prestaRouter.post("/mongo", decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const newUser_no_register = _req.body;
+        const result = yield database_service_1.collections.user_no_register.insertOne(newUser_no_register);
+        result
+            ? res.status(201).send(`Successfully created a new user no register with id ${result.insertedId}`)
+            : res.status(500).send("Failed to create a new user no register.");
+    }
+    catch (error) {
+        console.error(error);
+        res.status(400).send(error.message);
+    }
+}));
+exports.prestaRouter.put("/mongo:id", decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = _req.params.id;
+    try {
+        const updatedUser_no_register = _req.body;
+        const query = { _id: new mongodb_1.ObjectId(id) };
+        const result = yield database_service_1.collections.user_no_register.updateOne(query, { $set: updatedUser_no_register });
+        result
+            ? res.status(200).send(`Successfully updated user with id ${id}`)
+            : res.status(304).send(`User with id: ${id} not updated`);
+    }
+    catch (error) {
+        console.error(error.message);
+        res.status(400).send(error.message);
+    }
+}));
+exports.prestaRouter.delete("mongo/:id", decodeToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const id = req.params.id;
+    try {
+        const query = { _id: new mongodb_1.ObjectId(id) };
+        const result = yield database_service_1.collections.user_no_register.deleteOne(query);
+        if (result && result.deletedCount) {
+            res.status(202).send(`Successfully removed user with id ${id}`);
+        }
+        else if (!result) {
+            res.status(400).send(`Failed to remove user no register with id ${id}`);
+        }
+        else if (!result.deletedCount) {
+            res.status(404).send(`User with id ${id} does not exist`);
+        }
+    }
+    catch (error) {
+        console.error(error.message);
+        res.status(400).send(error.message);
     }
 }));
 //# sourceMappingURL=presta.routermongo.js.map
