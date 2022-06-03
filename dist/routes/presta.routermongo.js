@@ -15,10 +15,11 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.prestaRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const mongodb_1 = require("mongodb");
+const adminTokens_1 = require("../firebase/adminTokens");
 const database_service_1 = require("../services/database.service");
 exports.prestaRouter = express_1.default.Router();
 exports.prestaRouter.use(express_1.default.json());
-exports.prestaRouter.get("/mongo", decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.prestaRouter.get("/mongo", adminTokens_1.decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const user_no_register = yield database_service_1.collections.user_no_register.find({}).toArray();
         res.status(200).send(user_no_register);
@@ -27,7 +28,7 @@ exports.prestaRouter.get("/mongo", decodeToken, (_req, res) => __awaiter(void 0,
         res.status(500).send(error.message);
     }
 }));
-exports.prestaRouter.post("/mongo", decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.prestaRouter.post("/mongo", adminTokens_1.decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
         const newUser_no_register = _req.body;
         const result = yield database_service_1.collections.user_no_register.insertOne(newUser_no_register);
@@ -40,7 +41,7 @@ exports.prestaRouter.post("/mongo", decodeToken, (_req, res) => __awaiter(void 0
         res.status(400).send(error.message);
     }
 }));
-exports.prestaRouter.put("/mongo:id", decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.prestaRouter.put("/mongo:id", adminTokens_1.decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = _req.params.id;
     try {
         const updatedUser_no_register = _req.body;
@@ -55,7 +56,7 @@ exports.prestaRouter.put("/mongo:id", decodeToken, (_req, res) => __awaiter(void
         res.status(400).send(error.message);
     }
 }));
-exports.prestaRouter.delete("mongo/:id", decodeToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+exports.prestaRouter.delete("mongo/:id", adminTokens_1.decodeToken, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const id = req.params.id;
     try {
         const query = { _id: new mongodb_1.ObjectId(id) };

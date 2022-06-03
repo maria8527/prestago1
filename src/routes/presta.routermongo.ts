@@ -1,10 +1,24 @@
 import express, { Request, Response } from "express";
+import { NextFunction } from "express";
 import { ObjectId } from "mongodb";
-import presta from "../models/presta";
+import { decodeToken } from '../firebase/adminTokens';
 import { collections } from "../services/database.service";
+import { ContainerTypes, ExpressJoiError } from "express-joi-validation";
+import validator from '../utilities/validator';
+import prestaSchema from '../schemas-joi/presta.schemajoi';
 export const prestaRouter = express.Router();
+
 prestaRouter.use(express.json());
 
+prestaRouter.use((err: any|ExpressJoiError, _req: Request, res: Response, next: NextFunction) => {
+    if (err && err.type in ContainerTypes){
+        const e: ExpressJoiError = err
+        res.status(400).send(`You submitted a bad ${e.type} paramater`)
+    }else{
+        res.status(500).send('Internal server error')
+
+    }
+});
 prestaRouter.get("/mongo", decodeToken, async (_req: Request, res: Response) => {
     try {
         const user_no_register = await collections.user_no_register.find({}).toArray();
@@ -14,7 +28,7 @@ prestaRouter.get("/mongo", decodeToken, async (_req: Request, res: Response) => 
     }
 });
 
-prestaRouter.post("/mongo", decodeToken, async (_req: Request, res: Response) => {
+prestaRouter.post("/mongo", decodeToken, validator.body(prestaSchema), async (_req: Request, res: Response) => {
     try {
         const newUser_no_register = _req.body;
         const result = await collections.user_no_register.insertOne(newUser_no_register);
@@ -27,7 +41,7 @@ prestaRouter.post("/mongo", decodeToken, async (_req: Request, res: Response) =>
     }
 });
 
-prestaRouter.put("/mongo:id", decodeToken, async (_req: Request, res: Response) => {
+prestaRouter.put("/mongo:id", decodeToken, validator.body(prestaSchema), async (_req: Request, res: Response) => {
     const id = _req.params.id;
 
     try {
@@ -44,7 +58,7 @@ prestaRouter.put("/mongo:id", decodeToken, async (_req: Request, res: Response) 
     }
 });
 
-prestaRouter.delete("mongo/:id", decodeToken, async (req: Request, res: Response) => {
+prestaRouter.delete("mongo/:id", decodeToken, validator.body(prestaSchema), async (req: Request, res: Response) => {
     const id = req.params.id;
 
     try {
