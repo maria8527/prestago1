@@ -4,10 +4,9 @@ import swaggerJsDoc from "swagger-jsdoc";
 import  router  from "../src/routes/presta.router"
 import { connectToDatabase } from "./services/database.service";
 import { prestaRouter } from "./routes/presta.routermongo";
+import { authRouter } from "../src/routes/auth.router";
 
 const app = express();
-
-app.use("/api", router);
 
 app.use(express.json());
 app.use(express.urlencoded({extended: false}));
@@ -31,10 +30,11 @@ const swaggerOptions = {
 const swaggerDocs = swaggerJsDoc(swaggerOptions)
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs))
 
-
 connectToDatabase()
     .then(() => {
         app.use("/", prestaRouter)
+        app.use("/auth", authRouter);
+        app.use("/api", router);
         app.listen(process.env.PORT, () => {
             console.log(`Server started at http://localhost:${process.env.PORT}`);
         });

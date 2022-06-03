@@ -9,8 +9,8 @@ const swagger_jsdoc_1 = __importDefault(require("swagger-jsdoc"));
 const presta_router_1 = __importDefault(require("../src/routes/presta.router"));
 const database_service_1 = require("./services/database.service");
 const presta_routermongo_1 = require("./routes/presta.routermongo");
+const auth_router_1 = require("../src/routes/auth.router");
 const app = (0, express_1.default)();
-app.use("/api", presta_router_1.default);
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: false }));
 const swaggerOptions = {
@@ -33,6 +33,8 @@ app.use('/api-docs', swagger_ui_express_1.default.serve, swagger_ui_express_1.de
 (0, database_service_1.connectToDatabase)()
     .then(() => {
     app.use("/", presta_routermongo_1.prestaRouter);
+    app.use("/auth", auth_router_1.authRouter);
+    app.use("/api", presta_router_1.default);
     app.listen(process.env.PORT, () => {
         console.log(`Server started at http://localhost:${process.env.PORT}`);
     });

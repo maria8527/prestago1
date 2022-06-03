@@ -12,19 +12,28 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.prestaRouter = void 0;
+exports.authRouter = void 0;
 const express_1 = __importDefault(require("express"));
-const database_service_1 = require("../services/database.service");
-const adminTokens_1 = require("../firebase/adminTokens");
-exports.prestaRouter = express_1.default.Router();
-exports.prestaRouter.use(express_1.default.json());
-exports.prestaRouter.get("/mongo", adminTokens_1.decodeToken, (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+const auth_1 = __importDefault(require("../firebase/auth"));
+exports.authRouter = express_1.default.Router();
+exports.authRouter.post('/createUser', (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const user_no_register = yield database_service_1.collections.user_no_register.find({}).toArray();
-        res.status(200).send(user_no_register);
+        const { email, password } = _req.body;
+        const result = yield auth_1.default.createUser(email, password);
+        res.status(201).send(result);
     }
     catch (error) {
-        res.status(500).send(error.message);
+        res.status(400).send(error.message);
     }
 }));
-//# sourceMappingURL=presta.routermongo.js.map
+exports.authRouter.post('/logIn', (_req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { email, password } = _req.body;
+        const result = yield auth_1.default.logIn(email, password);
+        res.status(201).send(result);
+    }
+    catch (error) {
+        res.status(400).send(error.message);
+    }
+}));
+//# sourceMappingURL=auth.router.js.map
