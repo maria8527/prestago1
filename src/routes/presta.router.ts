@@ -5,7 +5,9 @@ import { ContainerTypes, ExpressJoiError } from "express-joi-validation";
 import { NextFunction } from "express";
 import { decodeToken } from '../firebase/adminTokens';
 import validator from '../utilities/validator';
-import posgrestSchema from '../schemas-joi/presta.schemajoiposg';
+import registroSchema  from '../schemas-joi/presta.schemajoiposg';
+import  prestamoSchema from '../schemas-joi/prestamo.schemajoi';
+import pagoSchema from '../schemas-joi/pago.schemajoi'
 const pool = require('../services/db');
 
 const router = Router();
@@ -41,7 +43,7 @@ router.get("/registro/:id", decodeToken, async (req: Request, res: Response) => 
     }
 });
 
-router.post("/registro", decodeToken, validator.body(posgrestSchema), async (req: Request, res: Response) => {
+router.post("/registro", decodeToken, validator.body(registroSchema), async (req: Request, res: Response) => {
     try{ 
     const {nombre_completo, fecha_nacimiento, numero_celular, tipo_documento, N_documento, profesion_u_oficio,
     direccion, email, rol, contraseña} = req.body;
@@ -66,7 +68,7 @@ router.post("/registro", decodeToken, validator.body(posgrestSchema), async (req
     
 });
 
-router.put("/registro/:id", decodeToken, validator.body(posgrestSchema), async (req: Request, res: Response) =>{
+router.put("/registro/:id", decodeToken, validator.body(registroSchema), async (req: Request, res: Response) =>{
     try{
     const id = parseInt(req.params.id);
     const { nombre_completo, fecha_nacimiento, numero_celular, tipo_documento, N_documento, profesion_u_oficio,
@@ -95,7 +97,7 @@ router.put("/registro/:id", decodeToken, validator.body(posgrestSchema), async (
 }
 });
 
-router.delete("/registro/:id", validator.body(posgrestSchema), async (req: Request, res: Response) =>{
+router.delete("/registro/:id", validator.body(registroSchema), async (req: Request, res: Response) =>{
     try { 
         const {id} = req.params;
         await pool.query(`DELETE FROM user WHERE id = ${id};`)

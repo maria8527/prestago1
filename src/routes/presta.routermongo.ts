@@ -5,7 +5,7 @@ import { decodeToken } from '../firebase/adminTokens';
 import { collections } from "../services/database.service";
 import { ContainerTypes, ExpressJoiError } from "express-joi-validation";
 import validator from '../utilities/validator';
-import prestaSchema from '../schemas-joi/presta.schemajoi';
+import prestaSchema from '../schemas-joi/presta.schemajoimongo';
 export const prestaRouter = express.Router();
 
 prestaRouter.use(express.json());
