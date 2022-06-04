@@ -19,7 +19,7 @@ router.use((err: any|ExpressJoiError, _req: Request, res: Response, next: NextFu
 
     }
 });
-router.get("/presta", async (req: Request, res: Response) => {
+router.get("/registro", async (req: Request, res: Response) => {
     try { 
         const result: QueryResult = await pool.query("SELECT * FROM registro");
         res.status(200).json(result.rows);
@@ -29,14 +29,20 @@ router.get("/presta", async (req: Request, res: Response) => {
     }
 });
 
-router.get("/pesta/:id", decodeToken, async (req: Request, res: Response) => {
+router.get("/registro/:id", decodeToken, async (req: Request, res: Response) => {
     console.log('params: ');
+    try{
     const id = parseInt(req.params.id);
     const result: QueryResult = await pool.query('SELECT * FROM registro WHERE id = $1', [id]);
-    return res.json(result.rows);
+    res.status(200).json(result.rows);
+    }catch(error){
+        res.status(500).json(error);
+        console.log(error); 
+    }
 });
 
-router.post("/presta", decodeToken, validator.body(posgrestSchema), async (req: Request, res: Response) => {
+router.post("/registro", decodeToken, validator.body(posgrestSchema), async (req: Request, res: Response) => {
+    try{ 
     const {nombre_completo, fecha_nacimiento, numero_celular, tipo_documento, N_documento, profesion_u_oficio,
     direccion, email, rol, contraseña} = req.body;
 
@@ -48,15 +54,23 @@ router.post("/presta", decodeToken, validator.body(posgrestSchema), async (req: 
         body:{
             user: {nombre_completo, fecha_nacimiento, numero_celular, tipo_documento, N_documento, profesion_u_oficio,
                 direccion, email, rol, contraseña}
-        }
-    })
-    return res.json(result.rows);
+                
+        }   
+    });
+    res.status(200).json(result.rows);
+
+   }catch(error){
+    res.status(500).json(error);
+    console.log(error); 
+}
+    
 });
 
-router.put("/presta/:id", decodeToken, validator.body(posgrestSchema), async (req: Request, res: Response) =>{
+router.put("/registro/:id", decodeToken, validator.body(posgrestSchema), async (req: Request, res: Response) =>{
+    try{
     const id = parseInt(req.params.id);
     const { nombre_completo, fecha_nacimiento, numero_celular, tipo_documento, N_documento, profesion_u_oficio,
-        direccion, email, rol, contraseña} = req.body;
+    direccion, email, rol, contraseña} = req.body;
 
     const result = await pool.query('UPDATE users SET nombrecompleto = $1, fechanacimiento = $2, celular = $3, tipodocumento = $4, numerodoc = $5, profesion = $6, direccion = $7, email = $8, rol = $9, contraseña = $10 WHERE id = $11',
     [
@@ -72,10 +86,16 @@ router.put("/presta/:id", decodeToken, validator.body(posgrestSchema), async (re
         contraseña,
         id
     ]);
+    res.status(200).json(result.rows);
     res.json('User update!');
+
+    }catch(error){
+    res.status(500).json(error);
+    console.log(error); 
+}
 });
 
-router.delete("/presta/:id", validator.body(posgrestSchema), async (req: Request, res: Response) =>{
+router.delete("/registro/:id", validator.body(posgrestSchema), async (req: Request, res: Response) =>{
     try { 
         const {id} = req.params;
         await pool.query(`DELETE FROM user WHERE id = ${id};`)
