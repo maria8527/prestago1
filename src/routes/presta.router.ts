@@ -56,9 +56,16 @@ router.post("/registro", decodeToken, validator.body(registroSchema), async (req
     const {nombre_completo, fecha_nacimiento, numero_celular, tipo_documento, n_documento, profesion_u_oficio,
     direccion, email, rol, contrasena} = req.body;
 
-    const result = await pool.query('INSERT INTO registro VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10)',
-    ([nombre_completo, fecha_nacimiento, numero_celular, tipo_documento, n_documento, profesion_u_oficio,
-    direccion, email, rol, contrasena]));
+    const result = await pool.query(
+        'INSERT INTO prestamo VALUES ($1,$2,$3,$4,$5,$6,$7)',
+        [
+          nombre_completo,
+          fecha_creacion,
+          monto_prestar,
+          plazo_en_meses,
+          tasa_interes,
+          estado,
+        ]);
     res.json({
         message: 'User register successfully',
         body:{
@@ -84,7 +91,7 @@ router.put("/registro/:id", decodeToken, validator.body(registroSchema), async (
     const { nombre_completo, fecha_nacimiento, numero_celular, tipo_documento, n_documento, profesion_u_oficio,
     direccion, email, rol, contrasena} = req.body;
 
-    const result = await pool.query('UPDATE users SET nombre_completo = $1, fecha_nacimiento = $2, numero_celular = $3, tipo_documento = $4, n_documento = $5, profesion_u_oficio = $6, direccion = $7, email = $8, rol = $9, contrasena = $10 WHERE id = $11',
+    const result = await pool.query('UPDATE users SET nombre_completo = $1, fecha_nacimiento = $2, numero_celular = $3, tipo_documento = $4, n_documento = $5, profesion_u_oficio = $6, direccion = $7, email = $8, rol = $9, contrasena = $10 WHERE id = $11;',
     [
         nombre_completo, 
         fecha_nacimiento, 
@@ -124,7 +131,7 @@ router.delete("/registro/:id", async (req: Request, res: Response) =>{
 router.get("/prestamo", async (req: Request, res: Response) => {
     let cliente = await pool.connect();
     try { 
-        const result: QueryResult = await pool.query("SELECT * FROM prestamo");
+        const result: QueryResult = await pool.query("SELECT * FROM prestamo;");
         res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json(error);
@@ -139,7 +146,7 @@ router.get("/prestamo/:id", decodeToken, async (req: Request, res: Response) => 
     try{
     console.log('params: ');
     const id = parseInt(req.params.id);
-    const result: QueryResult = await pool.query('SELECT * FROM prestamo WHERE id = $1', [id]);
+    const result: QueryResult = await pool.query('SELECT * FROM prestamo WHERE id = $1;', [id]);
     res.status(200).json(result.rows);
     }catch(error){
         res.status(500).json(error);
@@ -154,8 +161,14 @@ router.post("/prestamo", decodeToken, validator.body(prestamoSchema), async (req
     try{
     const {nombre_completo, fecha_creacion, monto_prestar, plazo_en_meses, tasa_interes, estado} = req.body;
 
-    const result = await pool.query('INSERT INTO prestamo VALUES ($1,$2,$3,$4,$5,$6,$7)',
-    ([nombre_completo, fecha_creacion, monto_prestar, plazo_en_meses, tasa_interes, estado ]));
+    const result = await pool.query(
+        'INSERT INTO prestamo VALUES ($1,$2,$3,$4,$5,$6,$7);',
+        ([nombre_completo, 
+        fecha_creacion, 
+        monto_prestar, 
+        plazo_en_meses, 
+        tasa_interes, 
+        estado ]));
     res.json({
         message: 'lend lease register successfully',
         body:{
@@ -177,7 +190,7 @@ router.put("/prestamo/:id", decodeToken, validator.body(prestamoSchema), async (
     const id = parseInt(req.params.id);
     const { nombre_completo, fecha_creacion, monto_prestar, plazo_en_meses, tasa_interes, estado} = req.body;
 
-    const result = await pool.query('UPDATE prestamo SET nombrecompleto = $1, fechacreacion = $2, montoprestar = $3, plazoenmese = $4, tasainteres = $5, estado = $6 WHERE id = $7',
+    const result = await pool.query('UPDATE prestamo SET nombre_completo = $1, fecha_creacion = $2, monto_prestar = $3, plazo_en_mese = $4, tasa_interes = $5, estado = $6 WHERE id = $7;',
     [   nombre_completo, 
         fecha_creacion,
         monto_prestar,
@@ -212,7 +225,7 @@ router.delete("/prestamo/:id", async (req: Request, res: Response) =>{
 router.get("/pago", async (req: Request, res: Response) => {
     let cliente = await pool.connect();
     try { 
-        const result: QueryResult = await pool.query("SELECT * FROM pago");
+        const result: QueryResult = await pool.query("SELECT * FROM pago;");
         res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json(error);
@@ -227,7 +240,7 @@ router.get("/pago/:id", decodeToken, async (req: Request, res: Response) => {
     try{
     console.log('params: ');
     const id = parseInt(req.params.id);
-    const result: QueryResult = await pool.query('SELECT * FROM pago WHERE id = $1', [id]);
+    const result: QueryResult = await pool.query('SELECT * FROM pago WHERE id = $1;', [id]);
     res.status(200).json(result.rows);
     }catch(error){
         res.status(500).json(error);
@@ -241,8 +254,13 @@ router.post("/pago", decodeToken, validator.body(pagoSchema), async (req: Reques
     let cliente = await pool.connect();
     try{
     const {fecha_pago_cuotas,tiempo_pagar,cuota_pagar} = req.body;
-    const result = await pool.query('INSERT INTO pago VALUES ($1,$2,$3,$4,)',
-    ([fecha_pago_cuotas,tiempo_pagar,cuota_pagar ]));
+    const result = await pool.query(
+    'INSERT INTO pago VALUES ($1,$2,$3,$4,);',
+    ([
+    fecha_pago_cuotas,
+    tiempo_pagar,
+    cuota_pagar
+    ]));
     res.json({
         message: 'pyment register successfully',
         body:{
@@ -265,7 +283,7 @@ router.put("/pago/:id", decodeToken, validator.body(pagoSchema), async (req: Req
     const id = parseInt(req.params.id);
     const { fecha_pago_cuotas,tiempo_pagar,cuota_pagar} = req.body;
 
-    const result = await pool.query('UPDATE pago SET fechapagocuotas = $1, tiempopagar = $2, cuotapagar = $3 WHERE id = $4',
+    const result = await pool.query('UPDATE pago SET fecha_pago_cuotas = $1, tiempo_pagar = $2, cuota_pagar = $3 WHERE id = $4;',
     [   fecha_pago_cuotas,
         tiempo_pagar,
         cuota_pagar,
@@ -297,7 +315,7 @@ router.delete("/pago/:id", async (req: Request, res: Response) =>{
 router.get("/historial", async (req: Request, res: Response) => {
     let cliente = await pool.connect();
     try { 
-        const result: QueryResult = await pool.query("SELECT * FROM historial");
+        const result: QueryResult = await pool.query("SELECT * FROM historial;");
         res.status(200).json(result.rows);
     } catch (error) {
         res.status(500).json(error);
@@ -312,7 +330,7 @@ router.get("/historial/:id", decodeToken, async (req: Request, res: Response) =>
     try{
     console.log('params: ');
     const id = parseInt(req.params.id);
-    const result: QueryResult = await pool.query('SELECT * FROM hitorial WHERE id = $1', [id]);
+    const result: QueryResult = await pool.query('SELECT * FROM hitorial WHERE id = $1;', [id]);
     res.status(200).json(result.rows);
     }catch(error){
         res.status(500).json(error);
